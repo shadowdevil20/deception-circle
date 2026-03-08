@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deception Circle - Admin Panel</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            background: #1A1A2E;
+            color: #B8B8D1;
+            padding: 20px;
+        }
+        .container { max-width: 800px; margin: 0 auto; }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #FF6B6B, #FF8E53);
+            border-radius: 10px;
+            color: white;
+        }
+        .card {
+            background: rgba(255,255,255,0.08);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .card h2 { color: #4ECDC4; margin-bottom: 15px; }
+        .password-box {
+            background: #2A2A3E;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 18px;
+            text-align: center;
+            border: 2px solid #FF9A55;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .info-item {
+            background: #2A2A3E;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .info-item .label { color: #4ECDC4; font-size: 12px; margin-bottom: 5px; }
+        .info-item .value { font-size: 20px; font-weight: bold; color: #FF9A55; }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #FF6B6B, #FF8E53);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+        }
+        .btn-secondary { background: linear-gradient(135deg, #4ECDC4, #44A08D); }
+        .warning { color: #FF6B6B; font-size: 14px; margin: 10px 0; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        th { color: #4ECDC4; }
+        .status-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            background: #4ECDC4;
+            color: white;
+        }
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav">
+            <h1>⚙️ Deception Circle Admin</h1>
+            <div>
+                <span class="status-badge"><%= username %></span>
+                <a href="/admin/logout" class="btn">Logout</a>
+            </div>
+        </div>
+        
+        <div class="header">
+            <h1>🔐 Weekly Passwords</h1>
+            <p>Week <%= weeklyPasswords.week %> - <%= weeklyPasswords.year %></p>
+        </div>
+        
+        <div class="card">
+            <h2>📅 Current Week: <%= weeklyPasswords.week %></h2>
+            <p>Valid until: <%= new Date(weeklyPasswords.validUntil).toLocaleString() %></p>
+            
+            <% if (creator) { %>
+                <div class="password-box">
+                    <div style="color: #4ECDC4; font-size: 14px; margin-bottom: 5px;">👑 CREATOR PASSWORD</div>
+                    <div style="font-size: 24px; letter-spacing: 2px;"><%= weeklyPasswords.creator %></div>
+                </div>
+            <% } %>
+            
+            <div class="password-box">
+                <div style="color: #FF9A55; font-size: 14px; margin-bottom: 5px;">🔐 ADMIN PASSWORD</div>
+                <div style="font-size: 24px; letter-spacing: 2px;"><%= weeklyPasswords.admin %></div>
+            </div>
+            
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="label">Week Number</div>
+                    <div class="value"><%= weeklyPasswords.week %></div>
+                </div>
+                <div class="info-item">
+                    <div class="label">Year</div>
+                    <div class="value"><%= weeklyPasswords.year %></div>
+                </div>
+                <div class="info-item">
+                    <div class="label">Days Remaining</div>
+                    <div class="value">
+                        <%= Math.ceil((new Date(weeklyPasswords.validUntil) - new Date()) / (1000 * 60 * 60 * 24)) %>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="label">Password Format</div>
+                    <div class="value">base + week + year</div>
+                </div>
+            </div>
+            
+            <div class="warning">
+                ⚠️ Passwords auto-rotate every Sunday at midnight
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>📊 Game Statistics</h2>
+            <table>
+                <tr>
+                    <th>Metric</th>
+                    <th>Value</th>
+                </tr>
+                <tr>
+                    <td>Custom Words</td>
+                    <td><span id="wordCount">Loading...</span></td>
+                </tr>
+                <tr>
+                    <td>Custom Roles</td>
+                    <td><span id="roleCount">Loading...</span></td>
+                </tr>
+            </table>
+        </div>
+        
+        <% if (creator) { %>
+        <div class="card">
+            <h2>⚙️ Password Management</h2>
+            <p>Change password bases (new passwords will apply from next week):</p>
+            
+            <div style="margin: 15px 0;">
+                <label style="display: block; margin: 10px 0;">
+                    <span style="color: #4ECDC4;">Admin Password Base:</span>
+                    <input type="text" id="adminBase" value="<%= process.env.ADMIN_PASSWORD_BASE %>" 
+                           style="width: 100%; padding: 8px; margin-top: 5px; background: #2A2A3E; color: white; border: 1px solid #FF9A55; border-radius: 4px;">
+                </label>
+                
+                <label style="display: block; margin: 10px 0;">
+                    <span style="color: #FF9A55;">Creator Password Base:</span>
+                    <input type="text" id="creatorBase" value="<%= process.env.CREATOR_PASSWORD_BASE %>" 
+                           style="width: 100%; padding: 8px; margin-top: 5px; background: #2A2A3E; color: white; border: 1px solid #FF9A55; border-radius: 4px;">
+                </label>
+                
+                <button class="btn" onclick="updatePasswordBases()">Update Password Bases</button>
+            </div>
+        </div>
+        <% } %>
+        
+        <div class="card">
+            <h2>🔗 Quick Links</h2>
+            <a href="/" class="btn btn-secondary" target="_blank">🎮 Play Game</a>
+            <a href="/admin" class="btn">🔄 Refresh Panel</a>
+        </div>
+    </div>
+    
+    <script>
+        async function loadStats() {
+            try {
+                const wordsRes = await fetch('/api/game/custom-words');
+                const wordsData = await wordsRes.json();
+                document.getElementById('wordCount').textContent = wordsData.words?.length || 0;
+                
+                const rolesRes = await fetch('/api/game/custom-roles');
+                const rolesData = await rolesRes.json();
+                document.getElementById('roleCount').textContent = Object.keys(rolesData.roles || {}).length;
+            } catch (e) {
+                console.error('Error loading stats:', e);
+            }
+        }
+        
+        async function updatePasswordBases() {
+            const adminBase = document.getElementById('adminBase').value;
+            const creatorBase = document.getElementById('creatorBase').value;
+            
+            const response = await fetch('/api/admin/update-passwords', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ adminBase, creatorBase })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                alert('✅ Password bases updated! They will take effect from next week.');
+            }
+        }
+        
+        loadStats();
+        setInterval(loadStats, 30000);
+    </script>
+</body>
+</html>

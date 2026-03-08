@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Deception Circle</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<!-- Main Game Pages -->
+<div id="gamePage" class="page active">
+    <div class="header">
+        <span class="settings-icon" onclick="openSettings()">⚙️</span>
+        <h1>DECEPTION CIRCLE</h1>
+        <p>Social Deduction Party Game</p>
+    </div>
+    <div class="card">
+        <h2 style="color:#4ECDC4;margin-bottom:10px;font-size:16px;">Setup Game</h2>
+        <div id="roleSetupContainer">
+            <!-- Dynamic roles will be loaded here -->
+        </div>
+        <div class="total-players">PLAY WITH <span id="totalPlayers">4</span> PLAYERS</div>
+        <button class="btn" onclick="startGame()">START GAME</button>
+        <button class="btn btn-secondary" onclick="resetRoles()">RESET</button>
+    </div>
+</div>
+
+<div id="passPage" class="page">
+    <div class="header"><h1>DECEPTION CIRCLE</h1></div>
+    <div class="pass-screen">
+        <h2>Pass to Player <span id="currentPlayerNum">1</span></h2>
+        <p style="margin:16px 0;font-size:12px;">Pass the device to the next player and let them discover their secret role</p>
+        <button class="btn" onclick="showRole()">SHOW ROLE</button>
+    </div>
+</div>
+
+<div id="rolePage" class="page">
+    <div class="header"><h1>DECEPTION CIRCLE</h1></div>
+    <div class="role-title">You are a <span id="playerRole">Detective</span></div>
+    <div class="word-display" id="wordDisplay">POLAR BEAR</div>
+    <div class="questions">
+        <h3 style="color:#4ECDC4;margin-bottom:6px;font-size:14px;">Suggested Questions:</h3>
+        <div id="questionsList"></div>
+    </div>
+    <div class="info-section"><p id="roleInstruction" class="compact-text">As a Detective, you know the word. Find the Spy without revealing it!</p></div>
+    <button class="btn btn-secondary" onclick="backToPass()">BACK</button>
+    <button class="btn" onclick="nextPlayer()">NEXT PLAYER</button>
+</div>
+
+<div id="timerPage" class="page">
+    <div class="header"><h1>DECEPTION CIRCLE</h1></div>
+    <div style="text-align:center">
+        <h2 style="color:#4ECDC4;margin:12px 0;font-size:18px;">Let's Begin!</h2>
+        <p style="margin:12px 0;font-size:12px;">Ask yes/no questions to uncover the spy while protecting the secret word</p>
+        <div class="timer" id="timerDisplay">03:00</div>
+        <div class="questions"><h3 style="color:#4ECDC4;margin-bottom:6px;font-size:14px;">Question Ideas:</h3><div id="timerQuestions"></div></div>
+        <div class="info-section compact-text">
+            <h4 style="color:#4ECDC4;margin-bottom:6px;font-size:14px;">Role Objectives:</h4>
+            <div id="timerRoleObjectives"></div>
+        </div>
+        <button class="btn" onclick="revealAll()">REVEAL ALL ROLES</button>
+    </div>
+</div>
+
+<div id="resultsPage" class="page">
+    <div class="header"><h1>DECEPTION CIRCLE</h1></div>
+    <div style="text-align:center">
+        <h2 style="color:#4ECDC4;margin:12px 0;font-size:18px;">Game Complete!</h2>
+        <div class="word-display" id="finalWord">POLAR BEAR</div>
+        <h3 style="color:#FF6B6B;margin:12px 0;font-size:16px;">🎭 Spy: Player <span id="spyPlayer">3</span> 🎭</h3>
+        <div class="card"><h3 style="color:#4ECDC4;margin-bottom:10px;font-size:14px;">All Player Roles:</h3><div id="finalRoleList"></div></div>
+        <h2 style="color:#FFD166;margin:16px 0;font-size:20px;">DECEPTION UNCOVERED!</h2>
+        <button class="btn" onclick="playAgain()">PLAY AGAIN</button>
+        <button class="btn btn-secondary" onclick="newGame()">NEW GAME</button>
+    </div>
+</div>
+
+<div id="settingsPage" class="page">
+    <div class="header">
+        <span class="close-btn" onclick="closeSettings()">✕</span>
+        <h1>⚙️ Settings</h1>
+    </div>
+    <div id="settingsContent"></div>
+</div>
+
+<!-- Modals -->
+<div id="keyboardModal" class="modal-overlay">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 class="modal-title">Enter Password</h2>
+        </div>
+        <div class="password-preview" id="passwordPreview">••••••••••••</div>
+        <div class="keyboard" id="keyboard"></div>
+        <div class="input-group">
+            <button class="btn key-cancel" onclick="closeKeyboard()">Cancel</button>
+            <button class="btn key-submit" onclick="submitPassword()">Submit</button>
+        </div>
+    </div>
+</div>
+
+<div id="certificateModal" class="modal-overlay">
+    <div class="modal" style="max-width: 340px;">
+        <div class="modal-header">
+            <h2 class="modal-title">📜 Secret Certificate</h2>
+        </div>
+        <div class="certificate-content">
+            <div class="certificate-seal">
+                <div class="seal-inner">🔏</div>
+            </div>
+            <h3 style="font-size:14px;">THIS CERTIFIES THAT</h3>
+            <h2 style="color:#4ECDC4; margin: 6px 0; font-size:18px;">DECEPTION CIRCLE</h2>
+            <p style="margin-bottom: 12px; font-size:12px;">Social Deduction Party Game</p>
+            <div style="margin: 12px 0; padding: 10px; background: rgba(255,154,85,0.1); border-radius: 6px;">
+                <p style="font-size: 14px; color: #FF9A55;">✦･ﾟ✧ ORIGINAL CREATION ✧･ﾟ✦</p>
+            </div>
+            <p style="margin: 10px 0; font-size:12px;">IS THE INTELLECTUAL PROPERTY OF</p>
+            <div class="creator-name" id="creatorName">HAPPYPRATIK</div>
+            <p style="margin: 6px 0; font-style: italic; font-size:11px;">(Signature: Happy)</p>
+            
+            <div class="certificate-id">
+                <p>Certificate ID: <span id="certificateId">DC-XXXXXX-HP</span></p>
+                <p>Discovery Date: <span id="discoveryDate">Loading...</span></p>
+                <p>Creator Since: <span id="creatorYear">2024</span></p>
+                <p>Secret Code: <span style="color:#FF9A55">happy</span></p>
+            </div>
+            
+            <div class="certificate-footer">
+                <p style="font-size:10px; line-height:1.3;">🛡️ This certificate verifies original intellectual property ownership.<br>
+                Unauthorized reproduction or distribution is prohibited.</p>
+                <p style="margin-top: 10px; font-size: 11px; color: #4ECDC4;">
+                    VERIFIED AUTHENTIC<br>
+                    "True ownership isn't claimed—it's proven through creation."
+                </p>
+            </div>
+        </div>
+        <div class="input-group">
+            <button class="btn key-cancel" onclick="closeCertificate()">✕ Close</button>
+            <button class="btn" onclick="shareCertificate()">📸 Screenshot</button>
+        </div>
+    </div>
+</div>
+
+<div id="choiceModal" class="modal-overlay">
+    <div class="modal" style="max-width: 300px;">
+        <div class="modal-header">
+            <h2 class="modal-title">🔓 Hidden Menu</h2>
+            <p>Choose an option:</p>
+        </div>
+        <div class="choice-buttons">
+            <button class="choice-btn certificate" onclick="openCertificate()">
+                📜 View Certificate
+            </button>
+            <button class="choice-btn keyboard" onclick="openKeyboard()">
+                🔐 Secret Panel
+            </button>
+        </div>
+        <div class="input-group">
+            <button class="btn key-cancel" onclick="closeChoiceModal()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<script src="/js/game.js"></script>
+</body>
+</html>
